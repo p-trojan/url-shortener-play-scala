@@ -1,0 +1,6 @@
+# https://www.playframework.com/documentation/latest/ScalaI18N
+
+inputUrl = Url to shorten
+outputUrl = Shortened url
+
+url.created = You have successfully added new URL!

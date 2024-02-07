@@ -1,0 +1,35 @@
+@(url: Form[CreateUrlForm], urlPostCall: Call, urls: Seq[Url], lastUrl: Url)(implicit request: MessagesRequestHeader)
+
+@import helper._
+
+@request.flash.get("success").map { key =>
+    @request.messages(key)
+}
+
+@main("Welcome to Play") {
+
+    <!-- @* Flash shows updates to a page *@
+    @request.flash.data.map{ case (name, value) =>
+      <div>@name: @value</div>
+    } -->
+
+    <table>
+        <thead>
+          <tr><th>Input URL</th><th>Output URL</th>
+        </thead>
+        <tbody>
+          <tr><td>@lastUrl.inputUrl</td><td>@lastUrl.outputUrl</td></tr>
+        </tbody>
+    </table>
+  
+    <hr/>
+
+    @form(urlPostCall) {
+        @inputText(url("inputUrl"))
+        @CSRF.formField
+
+        <div class="buttons">
+            <input type="submit" value="Shorten URL"/>
+        </div>
+    }
+}
