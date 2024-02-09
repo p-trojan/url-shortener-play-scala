@@ -45,10 +45,4 @@ class UrlRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(implici
   def findByUUID(uuid: String): Future[Option[Url]] = db.run {
     urls.filter(_.outputUrl === uuid).result.headOption
   }
-
-  def findById(id: Long): Future[Option[Url]] = db.run {
-    val res = urls.filter(_.id =!= id).result.headOption
-    println(res)
-    res
-  }
 }
