@@ -1,4 +1,4 @@
-@(url: Form[CreateUrlForm], urlPostCall: Call, urls: Seq[Url], lastUrl: Url)(implicit request: MessagesRequestHeader)
+@(urlForm: Form[CreateUrlForm], urlPostCall: Call, urls: Seq[Url], lastUrl: Url)(implicit request: MessagesRequestHeader)
 
 @import helper._
 
@@ -8,28 +8,35 @@
 
 @main("Welcome to Play") {
 
+    <h2>Url shortener</h2>
+
     <!-- @* Flash shows updates to a page *@
     @request.flash.data.map{ case (name, value) =>
       <div>@name: @value</div>
     } -->
-
-    <table>
-        <thead>
-          <tr><th>Input URL</th><th>Output URL</th>
-        </thead>
-        <tbody>
-          <tr><td>@lastUrl.inputUrl</td><td>http://localhost:9000/@lastUrl.outputUrl</td></tr>
-        </tbody>
-    </table>
-  
     <hr/>
+    <br>
 
     @form(urlPostCall) {
-        @inputText(url("inputUrl"))
-        @CSRF.formField
+      @CSRF.formField
+        <label for="input">Input url:</label>
+        <input type="text" 
+               id="@{urlForm("inputUrl").id}"
+               name="@{urlForm("inputUrl").label}"
+               value=@lastUrl.inputUrl
+               size="100"
+               formmethod="post">
+               <br><br>
 
-        <div class="buttons">
-            <input type="submit" value="Shorten URL"/>
-        </div>
+        <button type="submit">Shorten URL</button>
+        <br><br>
     }
+
+    <label for="output">Output url:</label>
+        <input type="text" 
+               id="output"
+               name="output"
+               value="http://localhost:9000/@lastUrl.outputUrl"
+               size="100"
+               readonly="true"><br><br>
 }
