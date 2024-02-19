@@ -1,4 +1,4 @@
-@(urlForm: Form[CreateUrlForm], urlPostCall: Call, urls: Seq[Url], lastUrl: Url)(implicit request: MessagesRequestHeader)
+@(urlForm: Form[CreateUrlForm], urlPostCall: Call, lastUrl: Url)(implicit request: MessagesRequestHeader)
 
 @import helper._
 
@@ -33,10 +33,12 @@
     }
 
     <label for="output">Output url:</label>
-        <input type="text" 
-               id="output"
-               name="output"
-               value="http://localhost:9000/@lastUrl.outputUrl"
-               size="100"
-               readonly="true"><br><br>
+    <input type="text" 
+            id="output"
+            name="output"
+            value="http://localhost:9000/@lastUrl.outputUrl"
+            size="100"
+            readonly="true"
+            onclick="myFunction()"><br><br>
+    <button onclick="myFunction()">Copy link</button>
 }

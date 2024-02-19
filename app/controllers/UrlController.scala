@@ -17,33 +17,52 @@ import scala.util.Failure
 import com.fasterxml.jackson.annotation.ObjectIdGenerators.UUIDGenerator
 import java.util.UUID
 import views.html.defaultpages.error
+import play.api.data.validation.Constraint
+import play.api.data.validation.ValidationError
+import play.api.data.validation.Valid
+import play.api.data.validation.Invalid
 
 class UrlController @Inject()(urlRepository: UrlRepository,
                                   cc: MessagesControllerComponents
                                 )(implicit ec: ExecutionContext)
   extends MessagesAbstractController(cc) {
 
-    private val urls = mutable.ArrayBuffer[Url]().empty
     private val urlPostCall = routes.UrlController.addUrl
     private var lastUrl: Url = null
     private var found: String = ""
-    
+        
     getLastUrl
+
+    val https = """https://""".r
+    val http = """http://""".r
+
+    val protocolCheckConstraint: Constraint[String] = Constraint("constraints.protocolcheck") { plainText =>
+      val errors = plainText match {
+        case https() => Seq(ValidationError("URL protocol missing: https:// "))
+        case http() => Seq(ValidationError("URL protocol missing: http:// "))
+        case _            => Nil
+      }
+      if (errors.isEmpty) {
+        Valid
+      } else {
+        Invalid("Invalid input string", errors)
+      }
+    }
 
   val urlForm: Form[CreateUrlForm] = Form {
     mapping(
-      "inputUrl" -> nonEmptyText
+      "inputUrl" -> nonEmptyText.verifying(protocolCheckConstraint)
     )(CreateUrlForm.apply)(CreateUrlForm.unapply)
   }
 
   def index = Action { implicit request =>
-    Ok(views.html.index(urlForm, urlPostCall, urls.toSeq, lastUrl))
+    Ok(views.html.index(urlForm, urlPostCall, lastUrl))
   }
 
   def addUrl = Action.async { implicit request =>
     urlForm.bindFromRequest().fold(
       errorForm => {
-        Future.successful(Ok(views.html.index(errorForm, urlPostCall, urls.toSeq, lastUrl)))
+        Future.successful(BadRequest(views.html.index(errorForm, urlPostCall, lastUrl)))
       },
       url => {
         urlRepository.create(url.inputUrl, UUID.randomUUID().toString()).map { _ =>
